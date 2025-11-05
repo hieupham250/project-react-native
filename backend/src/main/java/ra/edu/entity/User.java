@@ -44,4 +44,13 @@ public class User {
     private String avatar;
 
     private boolean status;
+
+    @OneToMany(mappedBy = "user")
+    private List<Booking> bookings;
+
+    @OneToMany(mappedBy = "user")
+    private List<Review> reviews;
+
+    @OneToMany(mappedBy = "user")
+    private List<Comment> comments;
 }
