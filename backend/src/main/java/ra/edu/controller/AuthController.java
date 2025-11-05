@@ -14,6 +14,7 @@ import ra.edu.service.AuthService;
 
 import java.time.LocalDateTime;
 
+@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor
@@ -37,6 +38,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<BaseResponse<User>> register(@RequestBody @Valid UserRegister userRegister){
+        System.out.println(userRegister);
         authService.register(userRegister);
         return new ResponseEntity<>(
                 new BaseResponse<>(

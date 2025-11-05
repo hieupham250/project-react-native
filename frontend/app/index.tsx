@@ -1,14 +1,14 @@
-import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import { useState } from "react";
 import {
-  ImageBackground,
-  StyleSheet,
+  View,
   Text,
   TouchableOpacity,
-  View,
+  StyleSheet,
+  ImageBackground,
 } from "react-native";
+import { useRouter } from "expo-router";
 
-export default function Onboarding() {
+export default function IndexScreen() {
   const [step, setStep] = useState(1);
   const router = useRouter();
 
@@ -18,10 +18,11 @@ export default function Onboarding() {
   };
 
   const progress = (step / 3) * 100;
+
   return (
     <ImageBackground
       source={{
-        uri: "https://vipcorel.com/attachments/vipcorel-com_background-mau-xanh-duong-1-jpg.27732/",
+        uri: "https://png.pngtree.com/thumb_back/fh260/background/20240103/pngtree-vivid-abstract-texture-a-burst-of-colorful-background-image_13892083.png",
       }}
       style={styles.background}
       resizeMode="cover"
@@ -43,7 +44,10 @@ export default function Onboarding() {
             paddingHorizontal: 20,
           }}
         >
-          <TouchableOpacity style={styles.button} onPress={handleNext}>
+          <TouchableOpacity
+            style={styles.button}
+            onPress={() => router.replace("/login")}
+          >
             <Text style={styles.buttonText}>Skip</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.button} onPress={handleNext}>
@@ -68,7 +72,7 @@ const styles = StyleSheet.create({
   },
 
   content: {
-    height: "50%",
+    height: "40%",
     position: "absolute",
     bottom: 0,
     left: 0,

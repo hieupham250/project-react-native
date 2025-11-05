@@ -1,36 +1,56 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { login } from "@/apis/auth.api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
-import { TextInput } from "react-native-paper";
 import { useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+} from "react-native";
 
 export default function Login() {
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  const handleLogin = () => {
-    router.replace("/(tabs)");
+  const handleLogin = async () => {
+    try {
+      const res = await login({ email, password });
+      if (res.success) {
+        await AsyncStorage.setItem("accessToken", res.data.token);
+        router.replace("/(tabs)");
+      } else {
+        const msg =
+          res.errors?.[0]?.message || res.message || "Đăng nhập thất bại";
+        Alert.alert("Đăng nhập thất bại", msg);
+      }
+    } catch (error: any) {
+      console.log(error.response?.data || error.message);
+      Alert.alert("Đăng nhập thất bại", "Có lỗi xảy ra khi kết nối server");
+    }
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Login</Text>
-      <View>
+      <View style={styles.form}>
         <TextInput
-          label="Email"
+          style={styles.input}
+          placeholder="Email"
           value={email}
           onChangeText={setEmail}
-          mode="outlined"
-          style={styles.input}
+          keyboardType="email-address"
           autoCapitalize="none"
         />
         <TextInput
-          label="Mật khẩu"
+          style={styles.input}
+          placeholder="Mật khẩu"
           value={password}
           onChangeText={setPassword}
-          mode="outlined"
           secureTextEntry
-          style={styles.input}
         />
       </View>
       <TouchableOpacity style={styles.button} onPress={handleLogin}>
@@ -51,9 +71,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     padding: 20,
   },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 30 },
-  form: { width: "100%", marginBottom: 30 },
-  input: { marginBottom: 15 },
+  title: { fontSize: 25, fontWeight: "bold", marginBottom: 30 },
+  form: {
+    width: "100%",
+    marginBottom: 30,
+  },
+  input: {
+    width: "100%",
+    backgroundColor: "#F3F4F6",
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 15,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
   button: {
     backgroundColor: "#007AFF",
     paddingVertical: 12,

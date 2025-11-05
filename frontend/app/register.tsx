@@ -1,16 +1,18 @@
-import { View, Text, TouchableOpacity, StyleSheet, Alert } from "react-native";
+import { register } from "@/apis/auth.api";
+import { UserRegister } from "@/interface";
 import { useRouter } from "expo-router";
-import { RadioButton, TextInput } from "react-native-paper";
 import { useState } from "react";
-
-interface UserRegister {
-  fullName: string;
-  email: string;
-  phone: string;
-  password: string;
-  dateOfBirth: string;
-  gender: string;
-}
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  TextInput,
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+} from "react-native";
 
 export default function Register() {
   const router = useRouter();
@@ -20,7 +22,7 @@ export default function Register() {
     phone: "",
     password: "",
     dateOfBirth: "",
-    gender: "",
+    gender: "MALE",
   });
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errors, setErrors] = useState<
@@ -32,132 +34,196 @@ export default function Register() {
       ...prev,
       [name]: value,
     }));
+
+    setErrors((prev) => ({ ...prev, [name]: undefined }));
   };
 
-  const validate = () => {
-    const newErrors: typeof errors = {};
+  const handleRegister = async () => {
+    try {
+      console.log("đang gọi api với ", form);
 
-    if (!form.fullName.trim()) newErrors.fullName = "Full name is required";
-    if (!form.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
-      newErrors.email = "Invalid email";
+      const res = await register(form);
 
-    if (!form.phone.trim()) newErrors.phone = "Phone is required";
-    else if (!/^\d+$/.test(form.phone))
-      newErrors.phone = "Phone must be a number";
+      if (res.success) {
+        Alert.alert("Thành công", res.message);
+        router.push("/login");
+      }
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        const resData = error.response.data;
 
-    if (!form.dateOfBirth.trim())
-      newErrors.dateOfBirth = "Date of birth is required";
-
-    if (!form.password) newErrors.password = "Password is required";
-    else if (form.password.length < 6)
-      newErrors.password = "Password must be at least 6 characters";
-
-    if (!confirmPassword) newErrors.confirmPassword = "Confirm your password";
-    else if (confirmPassword !== form.password)
-      newErrors.confirmPassword = "Passwords do not match";
-
-    if (!form.gender) newErrors.gender = "Gender is required";
-
-    setErrors(newErrors);
-
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleRegister = () => {
-    if (validate()) {
-      Alert.alert("Success", "Registration successful!");
-      router.replace("/login");
-    } else {
-      Alert.alert("Error", "Please fix the errors");
+        if (resData.errors && resData.errors.length > 0) {
+          const newErrors: typeof errors = {};
+          resData.errors.forEach((err: { field: string; message: string }) => {
+            if (err.field in form) {
+              newErrors[err.field as keyof UserRegister] = err.message;
+            } else {
+              Alert.alert("Error", err.message);
+            }
+          });
+          setErrors(newErrors);
+        } else {
+          Alert.alert("Error", resData.message || "Đăng ký thất bại");
+        }
+      } else {
+        Alert.alert("Error", error.message || "Đăng ký thất bại");
+      }
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Register</Text>
-      <View>
-        <TextInput
-          label="Full Name"
-          value={form.fullName}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => handleChange("fullName", text)}
-        />
-        <TextInput
-          label="Email"
-          value={form.email}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => handleChange("email", text)}
-        />
-        <TextInput
-          label="Phone"
-          value={form.phone}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => handleChange("phone", text)}
-        />
-        <TextInput
-          label="Date of Birth"
-          value={form.dateOfBirth}
-          mode="outlined"
-          style={styles.input}
-          onChangeText={(text) => handleChange("dateOfBirth", text)}
-        />
-        <TextInput
-          label="Password"
-          value={form.password}
-          mode="outlined"
-          secureTextEntry={true}
-          style={styles.input}
-          onChangeText={(text) => handleChange("password", text)}
-        />
-        <TextInput
-          label="Confirm Password"
-          value={confirmPassword}
-          mode="outlined"
-          secureTextEntry={true}
-          style={styles.input}
-          onChangeText={(text) => setConfirmPassword(text)}
-        />
-        <Text style={{ marginVertical: 10, fontSize: 16 }}>Gender</Text>
-        <RadioButton.Group
-          onValueChange={(value) => handleChange("gender", value)}
-          value={form.gender}
-        >
-          <View style={styles.radioRow}>
-            <RadioButton value="Male" />
-            <Text style={styles.radioLabel}>Male</Text>
-          </View>
-          <View style={styles.radioRow}>
-            <RadioButton value="Female" />
-            <Text style={styles.radioLabel}>Female</Text>
-          </View>
-        </RadioButton.Group>
-      </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      style={{ flex: 1 }}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View style={styles.container}>
+          <Text style={styles.title}>Register</Text>
 
-      <TouchableOpacity style={styles.button} onPress={handleRegister}>
-        <Text style={styles.buttonText}>Register</Text>
-      </TouchableOpacity>
+          <View style={styles.form}>
+            <TextInput
+              style={[styles.input, errors.fullName && styles.inputError]}
+              placeholder="Full name"
+              value={form.fullName}
+              onChangeText={(text) => handleChange("fullName", text)}
+            />
+            {errors.fullName && (
+              <Text style={styles.textError}>{errors.fullName}</Text>
+            )}
+            <TextInput
+              style={[styles.input, errors.email && styles.inputError]}
+              placeholder="Email"
+              value={form.email}
+              onChangeText={(text) => handleChange("email", text)}
+            />
+            {errors.email && (
+              <Text style={styles.textError}>{errors.email}</Text>
+            )}
+            <TextInput
+              style={[styles.input, errors.phone && styles.inputError]}
+              placeholder="Phone"
+              keyboardType="numeric"
+              value={form.phone}
+              onChangeText={(text) => handleChange("phone", text)}
+            />
+            {errors.phone && (
+              <Text style={styles.textError}>{errors.phone}</Text>
+            )}
+            <TextInput
+              style={[styles.input, errors.dateOfBirth && styles.inputError]}
+              placeholder="Date of Birth"
+              value={form.dateOfBirth}
+              onChangeText={(text) => handleChange("dateOfBirth", text)}
+            />
+            {errors.dateOfBirth && (
+              <Text style={styles.textError}>{errors.dateOfBirth}</Text>
+            )}
+            <TextInput
+              style={[styles.input, errors.password && styles.inputError]}
+              placeholder="Password"
+              secureTextEntry
+              value={form.password}
+              onChangeText={(text) => handleChange("password", text)}
+            />
+            {errors.password && (
+              <Text style={styles.textError}>{errors.password}</Text>
+            )}
+            <TextInput
+              style={[
+                styles.input,
+                errors.confirmPassword && styles.inputError,
+              ]}
+              placeholder="Confirm password"
+              secureTextEntry
+              value={confirmPassword}
+              onChangeText={(text) => setConfirmPassword(text)}
+            />
+            {errors.confirmPassword && (
+              <Text style={styles.textError}>{errors.confirmPassword}</Text>
+            )}
 
-      <TouchableOpacity onPress={() => router.push("/register")}>
-        <Text style={styles.link}>Chưa có tài khoản? Đăng nhập</Text>
-      </TouchableOpacity>
-    </View>
+            <View style={styles.genderContainer}>
+              <Text style={styles.label}>Gender</Text>
+              <View style={styles.genderOptions}>
+                <TouchableOpacity
+                  style={styles.genderOption}
+                  onPress={() => handleChange("gender", "MALE")}
+                >
+                  <View
+                    style={[
+                      styles.radio,
+                      form.gender === "MALE" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.genderText}>Male</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  style={styles.genderOption}
+                  onPress={() => handleChange("gender", "FEMALE")}
+                >
+                  <View
+                    style={[
+                      styles.radio,
+                      form.gender === "FEMALE" && styles.radioSelected,
+                    ]}
+                  />
+                  <Text style={styles.genderText}>Female</Text>
+                </TouchableOpacity>
+              </View>
+              {errors.gender && (
+                <Text style={styles.textError}>{errors.gender}</Text>
+              )}
+            </View>
+          </View>
+
+          <TouchableOpacity style={styles.button} onPress={handleRegister}>
+            <Text style={styles.buttonText}>Đăng ký</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity onPress={() => router.push("/login")}>
+            <Text style={styles.link}>Đã có tài khoản? Đăng nhập</Text>
+          </TouchableOpacity>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
+  scrollContainer: {
+    flexGrow: 1,
     justifyContent: "center",
-    alignItems: "center",
     padding: 20,
   },
-  title: { fontSize: 26, fontWeight: "bold", marginBottom: 30 },
-  form: { width: "100%", marginBottom: 30 },
-  input: { marginBottom: 15 },
+  container: {
+    alignItems: "center",
+  },
+  title: { fontSize: 25, fontWeight: "bold", marginBottom: 30 },
+  form: {
+    width: "100%",
+    marginBottom: 30,
+    display: "flex",
+    gap: 16,
+  },
+  input: {
+    width: "100%",
+    backgroundColor: "#F3F4F6",
+    padding: 12,
+    borderRadius: 8,
+    fontSize: 16,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  inputError: {
+    borderColor: "red",
+  },
+  textError: {
+    color: "red",
+  },
   button: {
     backgroundColor: "#007AFF",
     paddingVertical: 12,
@@ -166,6 +232,35 @@ const styles = StyleSheet.create({
   },
   buttonText: { color: "#fff", fontSize: 18, fontWeight: "500" },
   link: { marginTop: 20, color: "#007AFF", fontSize: 16 },
-  radioRow: { flexDirection: "row", alignItems: "center", marginBottom: 5 },
-  radioLabel: { fontSize: 16 },
+  genderContainer: {
+    marginBottom: 16,
+  },
+  label: {
+    marginBottom: 8,
+    fontSize: 16,
+    fontWeight: "500",
+  },
+  genderOptions: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  genderOption: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  radio: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: "#ccc",
+  },
+  radioSelected: {
+    backgroundColor: "#007AFF",
+    borderColor: "#007AFF",
+  },
+  genderText: {
+    fontSize: 16,
+  },
 });
