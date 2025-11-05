@@ -18,15 +18,14 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("Không tồn tại username"));
+        User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Không tồn tại username"));
 
         return CustomUserDetails.builder()
                 .id(user.getId())
-                .username(user.getUsername())
+                .username(user.getEmail())
                 .password(user.getPassword())
                 .email(user.getEmail())
-                .status(user.getStatus())
-                .authorities(List.of(new SimpleGrantedAuthority("ROLE_" + user.getRole().getName().name())))
+                .status(user.isStatus())
                 .build();
     }
 }

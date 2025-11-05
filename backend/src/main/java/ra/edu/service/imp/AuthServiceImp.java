@@ -12,10 +12,7 @@ import org.springframework.stereotype.Service;
 import ra.edu.dto.request.UserLogin;
 import ra.edu.dto.request.UserRegister;
 import ra.edu.dto.response.JWTResponse;
-import ra.edu.entity.Role;
 import ra.edu.entity.User;
-import ra.edu.enums.RoleName;
-import ra.edu.repository.RoleRepository;
 import ra.edu.repository.UserRepository;
 import ra.edu.security.jwt.JWTProvider;
 import ra.edu.security.principal.CustomUserDetails;
@@ -25,8 +22,6 @@ import ra.edu.service.AuthService;
 public class AuthServiceImp implements AuthService {
     @Autowired
     private UserRepository userRepository;
-    @Autowired
-    private RoleRepository roleRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
     @Autowired
@@ -40,7 +35,7 @@ public class AuthServiceImp implements AuthService {
         try {
             authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            userLogin.getUsername(),
+                            userLogin.getEmail(),
                             userLogin.getPassword()
                     )
             );
@@ -68,9 +63,6 @@ public class AuthServiceImp implements AuthService {
 
     @Override
     public User register(UserRegister userRegister) {
-        if (userRepository.findByUsername(userRegister.getUsername()).isPresent()) {
-            throw new IllegalArgumentException("Username đã tồn tại");
-        }
         if (userRepository.findByEmail(userRegister.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email đã tồn tại");
         }
@@ -80,33 +72,14 @@ public class AuthServiceImp implements AuthService {
 
         User user = User.builder()
                 .fullName(userRegister.getFullName())
-                .username(userRegister.getUsername())
                 .email(userRegister.getEmail())
                 .phone(userRegister.getPhone())
                 .password(passwordEncoder.encode(userRegister.getPassword()))
                 .dateOfBirth(userRegister.getDateOfBirth())
-                .verified(false)
+                .gender(userRegister.getGender())
                 .status(true)
-                .isDeleted(false)
-                .role(getRoleFromString("USER"))
                 .build();
 
         return userRepository.save(user);
-    }
-
-    private Role getRoleFromString(String roleStr) {
-        if (roleStr == null || roleStr.trim().isEmpty()) {
-            throw new IllegalArgumentException("Vai trò không được để trống");
-        }
-
-        RoleName roleName;
-        try {
-            roleName = RoleName.valueOf(roleStr.trim().toUpperCase());
-        } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Vai trò không hợp lệ: " + roleStr);
-        }
-
-        return roleRepository.findByName(roleName)
-                .orElseThrow(() -> new IllegalArgumentException("Vai trò không tồn tại trong hệ thống"));
     }
 }

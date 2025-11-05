@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import ra.edu.enums.Gender;
 
 import java.time.LocalDate;
 
@@ -13,10 +14,6 @@ import java.time.LocalDate;
 public class UserRegister {
     @NotBlank(message = "Họ tên không được để trống")
     private String fullName;
-
-    @NotBlank(message = "Tên đăng nhập không được để trống")
-    @Size(min = 6, max = 100, message = "Tên đăng nhập phải từ 6 đến 100 ký tự")
-    private String username;
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không hợp lệ")
@@ -35,4 +32,7 @@ public class UserRegister {
 
     @NotNull(message = "Ngày sinh không được để trống")
     private LocalDate dateOfBirth;
+
+    @NotNull(message = "Giới tính không được để trống")
+    private Gender gender;
 }

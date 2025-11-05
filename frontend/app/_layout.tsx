@@ -10,21 +10,30 @@ import React from "react";
 
 const queryClient = new QueryClient();
 
+const customLightTheme = {
+  ...LightTheme,
+  colors: {
+    ...LightTheme.colors,
+    primary: "#007AFF",
+    background: "#fff",
+  },
+};
+
+const customDarkTheme = {
+  ...DarkTheme,
+  colors: {
+    ...DarkTheme.colors,
+    primary: "#007AFF",
+    background: "#000",
+  },
+};
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const theme = colorScheme === "dark" ? DarkTheme : LightTheme;
-
-  const customTheme = {
-    ...theme,
-    colors: {
-      ...theme.colors,
-      primary: "#4CAF50",
-      secondary: "#03DAC6",
-    },
-  };
+  const theme = colorScheme === "dark" ? customDarkTheme : customLightTheme;
 
   return (
-    <PaperProvider theme={customTheme}>
+    <PaperProvider theme={theme}>
       <QueryClientProvider client={queryClient}>
         <Slot />
       </QueryClientProvider>
