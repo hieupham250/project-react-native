@@ -21,7 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("Không tồn tại username"));
 
         return CustomUserDetails.builder()
-                .id(user.getId())
+                .id(user.getUserId())
                 .username(user.getEmail())
                 .password(user.getPassword())
                 .email(user.getEmail())

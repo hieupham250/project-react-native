@@ -12,7 +12,8 @@ import lombok.*;
 public class HotelImage {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "image_id")
+    private Integer imageId;
 
     @ManyToOne
     @JoinColumn(name = "hotel_id")

@@ -14,7 +14,8 @@ import java.util.List;
 public class Hotel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "hotel_id")
+    private Integer hotelId;
 
     @Column(name = "hotel_name", nullable = false)
     private String hotelName;
@@ -22,7 +23,10 @@ public class Hotel {
     @Column(columnDefinition = "TEXT")
     private String address;
 
+    @Column(name = "city", length = 100)
     private String city;
+
+    @Column(name = "country", length = 100)
     private String country;
 
     @Column(columnDefinition = "TEXT")
@@ -34,12 +38,13 @@ public class Hotel {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
-    private List<HotelImage> images;
+    @ManyToOne
+    @JoinColumn(name = "owner_id", referencedColumnName = "user_id")
+    private User owner;
 
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<HotelImage> hotelImages;
+
+    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
-
-    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL)
-    private List<Review> reviews;
 }

@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "booking_id")
     private Integer bookingId;
 
     @ManyToOne
@@ -26,17 +27,26 @@ public class Booking {
     @JoinColumn(name = "room_id")
     private Room room;
 
+    @Column(name = "check_in")
     private LocalDate checkIn;
+
+    @Column(name = "check_out")
     private LocalDate checkOut;
 
-    @Column(nullable = false)
+    @Column(name = "total_price", nullable = false)
     private Double totalPrice;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
     private BookingStatus status = BookingStatus.PENDING;
 
+    @Column(name = "adults_count")
     private Integer adultsCount = 0;
+
+    @Column(name = "children_count")
     private Integer childrenCount = 0;
+
+    @Column(name = "infants_count")
     private Integer infantsCount = 0;
 
     @Column(name = "created_at")

@@ -22,7 +22,7 @@ export default function IndexScreen() {
   return (
     <ImageBackground
       source={{
-        uri: "https://png.pngtree.com/thumb_back/fh260/background/20240103/pngtree-vivid-abstract-texture-a-burst-of-colorful-background-image_13892083.png",
+        uri: "https://res.cloudinary.com/dh775j9ez/image/upload/v1762504535/abc_qpeqec.jpg",
       }}
       style={styles.background}
       resizeMode="cover"

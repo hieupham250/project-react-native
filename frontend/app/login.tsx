@@ -23,13 +23,14 @@ export default function Login() {
         await AsyncStorage.setItem("accessToken", res.data.token);
         router.replace("/(tabs)");
       } else {
-        const msg =
-          res.errors?.[0]?.message || res.message || "Đăng nhập thất bại";
+        const msg = res.errors?.[0]?.message;
         Alert.alert("Đăng nhập thất bại", msg);
       }
     } catch (error: any) {
-      console.log(error.response?.data || error.message);
-      Alert.alert("Đăng nhập thất bại", "Có lỗi xảy ra khi kết nối server");
+      Alert.alert(
+        "Đăng nhập thất bại",
+        error.response?.data.errors?.[0].message
+      );
     }
   };
 

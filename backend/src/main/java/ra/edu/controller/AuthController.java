@@ -14,7 +14,6 @@ import ra.edu.service.AuthService;
 
 import java.time.LocalDateTime;
 
-@CrossOrigin(origins = "http://localhost:8081")
 @RestController
 @RequestMapping("/api/v1/auth")
 @RequiredArgsConstructor

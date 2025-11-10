@@ -19,7 +19,8 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "user_id")
+    private Integer userId;
 
     @Column(name = "full_name", length = 100, nullable = false)
     private String fullName;
@@ -45,12 +46,15 @@ public class User {
 
     private boolean status;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Hotel> hotels;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Review> reviews;
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Comment> comments;
 }

@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "comment_id")
+    private Integer commentId;
 
     @ManyToOne
     @JoinColumn(name = "review_id")

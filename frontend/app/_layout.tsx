@@ -11,6 +11,10 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="login" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="room-detail/[id]" />
+        <Stack.Screen name="room-photo/[id]" />
+        <Stack.Screen name="search" />
+        <Stack.Screen name="filter" />
       </Stack>
     </QueryClientProvider>
   );

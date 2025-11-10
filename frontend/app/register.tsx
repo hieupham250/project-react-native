@@ -12,6 +12,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  ActivityIndicator,
 } from "react-native";
 
 export default function Register() {
@@ -28,6 +29,7 @@ export default function Register() {
   const [errors, setErrors] = useState<
     Partial<UserRegister & { confirmPassword: string }>
   >({});
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (name: keyof UserRegister, value: string) => {
     setForm((prev) => ({
@@ -40,7 +42,7 @@ export default function Register() {
 
   const handleRegister = async () => {
     try {
-      console.log("đang gọi api với ", form);
+      setIsLoading(true);
 
       const res = await register(form);
 
@@ -68,6 +70,8 @@ export default function Register() {
       } else {
         Alert.alert("Error", error.message || "Đăng ký thất bại");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -180,8 +184,16 @@ export default function Register() {
             </View>
           </View>
 
-          <TouchableOpacity style={styles.button} onPress={handleRegister}>
-            <Text style={styles.buttonText}>Đăng ký</Text>
+          <TouchableOpacity
+            style={[styles.button, isLoading && { opacity: 0.6 }]}
+            onPress={handleRegister}
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color="#fff" />
+            ) : (
+              <Text style={styles.buttonText}>Đăng ký</Text>
+            )}
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => router.push("/login")}>
