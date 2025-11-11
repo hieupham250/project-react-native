@@ -21,6 +21,7 @@ export default function Login() {
       const res = await login({ email, password });
       if (res.success) {
         await AsyncStorage.setItem("accessToken", res.data.token);
+        await AsyncStorage.setItem("userId", String(res.data.id));
         router.replace("/(tabs)");
       } else {
         const msg = res.errors?.[0]?.message;

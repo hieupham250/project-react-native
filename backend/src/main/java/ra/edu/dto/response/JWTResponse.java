@@ -13,6 +13,7 @@ import java.util.Collection;
 @NoArgsConstructor
 @Builder
 public class JWTResponse {
+    private Integer id;
     private String username;
     private String email;
     private String phone;

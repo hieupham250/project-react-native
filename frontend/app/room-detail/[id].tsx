@@ -1,12 +1,15 @@
+import { getReviewsByRoomId } from "@/apis/review.api";
 import { getRoomById } from "@/apis/room.api";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import ExpoImage from "expo-image/build/ExpoImage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import React from "react";
+import React, { useEffect } from "react";
 import {
   ActivityIndicator,
+  Alert,
   FlatList,
   ScrollView,
   StatusBar,
@@ -23,7 +26,8 @@ export default function RoomDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
-  const reviews: any = [];
+  const [userId, setUserId] = React.useState<number | null>(null);
+
   const {
     data: room,
     isLoading,
@@ -31,6 +35,17 @@ export default function RoomDetail() {
   } = useQuery({
     queryKey: ["hotel-detail", id],
     queryFn: () => getRoomById(Number(id)),
+    enabled: !!id,
+  });
+
+  const {
+    data: reviews,
+    isLoading: reviewsLoading,
+    isError: reviewsError,
+    refetch: refetchReviews,
+  } = useQuery({
+    queryKey: ["reviews", id],
+    queryFn: () => getReviewsByRoomId(Number(id)),
     enabled: !!id,
   });
 
@@ -56,6 +71,28 @@ export default function RoomDetail() {
       </View>
     );
   }
+
+  useEffect(() => {
+    const loadUserId = async () => {
+      const storedId = await AsyncStorage.getItem("userId");
+      if (storedId) {
+        setUserId(Number(storedId));
+      } else {
+        Alert.alert(
+          "Lỗi",
+          "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại!"
+        );
+        router.replace("/login");
+      }
+    };
+
+    loadUserId();
+  }, []);
+
+  const hasReviewed = React.useMemo(() => {
+    if (!reviews || !userId) return false;
+    return reviews.some((review: any) => review.userId === userId);
+  }, [reviews, userId]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
@@ -185,10 +222,28 @@ export default function RoomDetail() {
             <Text style={styles.featureText}>
               Sức chứa: {room?.capacity} người
             </Text>
+
+            {userId && !hasReviewed && (
+              <TouchableOpacity
+                style={styles.reviewButton}
+                onPress={() =>
+                  router.push({
+                    pathname: "/booking/write-review",
+                    params: {
+                      roomId: room?.roomId?.toString() || id,
+                      roomType: room?.roomType || "Phòng chưa xác định",
+                    },
+                  })
+                }
+              >
+                <Ionicons name="create-outline" size={18} color="#FFFFFF" />
+                <Text style={styles.reviewButtonText}>Viết đánh giá</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Reviews Section */}
-          {reviews.length > 0 && (
+          {reviews && reviews.length > 0 && (
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>
                 Đánh giá ({reviews.length})
@@ -212,24 +267,19 @@ export default function RoomDetail() {
                       </View>
                     </View>
                     <Text style={styles.reviewDate}>
-                      {new Date(review.createdAt).toLocaleDateString("vi-VN")}
+                      {new Date(review.createdAt).toLocaleString("vi-VN", {
+                        year: "numeric",
+                        month: "2-digit",
+                        day: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit",
+                      })}
                     </Text>
                   </View>
                   <Text style={styles.reviewComment}>{review.comment}</Text>
                 </View>
               ))}
-              {reviews.length > 5 && (
-                <TouchableOpacity
-                  style={styles.viewAllReviews}
-                  onPress={() => {
-                    // Navigate to reviews screen if needed
-                  }}
-                >
-                  <Text style={styles.viewAllReviewsText}>
-                    Xem tất cả {reviews.length} đánh giá
-                  </Text>
-                </TouchableOpacity>
-              )}
             </View>
           )}
         </View>
@@ -475,5 +525,20 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "600",
     color: "#FFFFFF",
+  },
+  reviewButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#6C7CE7",
+    borderRadius: 12,
+    paddingVertical: 12,
+    marginTop: 16,
+    gap: 8,
+  },
+  reviewButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });

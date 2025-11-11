@@ -52,6 +52,7 @@ public class AuthServiceImp implements AuthService {
         String token = jwtProvider.generateToken(customUserDetails.getUsername());
 
         return JWTResponse.builder()
+                .id(customUserDetails.getId())
                 .username(customUserDetails.getUsername())
                 .email(customUserDetails.getEmail())
                 .phone(customUserDetails.getPhone())

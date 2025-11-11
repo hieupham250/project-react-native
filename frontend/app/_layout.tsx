@@ -15,6 +15,7 @@ export default function RootLayout() {
         <Stack.Screen name="room-photo/[id]" />
         <Stack.Screen name="search" />
         <Stack.Screen name="filter" />
+        <Stack.Screen name="booking/write-review" />
       </Stack>
     </QueryClientProvider>
   );

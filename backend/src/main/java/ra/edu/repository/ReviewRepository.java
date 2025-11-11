@@ -16,8 +16,6 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
 
     boolean existsByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
 
-    Review findByReviewId(Integer reviewId);
-
     Review findByUser_UserIdAndRoom_RoomId(Integer userId, Integer roomId);
 
     @Query("SELECT AVG(r.rating) FROM Review r WHERE r.room.roomId = :roomId")

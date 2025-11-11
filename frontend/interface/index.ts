@@ -26,3 +26,21 @@ export interface City {
   name: string;
   imageUrl: string;
 }
+
+export interface Review {
+  reviewId: number;
+  roomId: number;
+  roomType: string;
+  userId: number;
+  userName: string;
+  rating: number;
+  comment: string;
+  createdAt: string;
+}
+
+export interface ReviewRequest {
+  roomId: number;
+  userId: number;
+  rating: number;
+  comment: string;
+}
