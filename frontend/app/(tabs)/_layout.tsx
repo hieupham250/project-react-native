@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Tabs, useRouter } from "expo-router";
@@ -84,6 +85,15 @@ export default function TabLayout() {
           title: "Trang chủ",
           tabBarIcon: ({ color }) => (
             <AntDesign name="home" size={24} color={color} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="account/edit-profile"
+        options={{
+          title: "Tài khoản",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="person-outline" size={size} color={color} />
           ),
         }}
       />

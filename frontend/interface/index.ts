@@ -7,6 +7,14 @@ export interface UserRegister {
   gender: string;
 }
 
+export interface User {
+  fullName: string;
+  email: string;
+  phone: string;
+  dateOfBirth: string;
+  gender: string;
+}
+
 export interface Room {
   roomId: number;
   roomType: string;

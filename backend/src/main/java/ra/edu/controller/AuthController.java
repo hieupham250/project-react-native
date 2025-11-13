@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import ra.edu.dto.request.*;
 import ra.edu.dto.response.BaseResponse;
 import ra.edu.dto.response.JWTResponse;
+import ra.edu.dto.response.UserResponse;
 import ra.edu.entity.User;
 import ra.edu.service.AuthService;
 
@@ -48,6 +49,37 @@ public class AuthController {
                         LocalDateTime.now()
                 ),
                 HttpStatus.CREATED
+        );
+    }
+
+    @GetMapping("/me/{id}")
+    public ResponseEntity<BaseResponse<UserResponse>> getUserDetail(@PathVariable("id") Integer userId) {
+        UserResponse userResponse = authService.getUserDetail(userId);
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        true,
+                        "Lấy thông tin user thành công",
+                        userResponse,
+                        null,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
+        );
+    }
+
+    @PutMapping("/profile")
+    public ResponseEntity<BaseResponse<UserResponse>> updateProfile(
+            @RequestBody @Valid UpdateProfileRequest updateProfileRequest) {
+        UserResponse updatedUser = authService.updateProfile(updateProfileRequest);
+        return new ResponseEntity<>(
+                new BaseResponse<>(
+                        true,
+                        "Cập nhật thông tin user thành công",
+                        updatedUser,
+                        null,
+                        LocalDateTime.now()
+                ),
+                HttpStatus.OK
         );
     }
 }

@@ -18,3 +18,21 @@ export const login = async (data: any): Promise<any> => {
     throw error;
   }
 };
+
+export const getUserDetail = async (userId: number): Promise<any> => {
+  try {
+    const response = await axiosInstance.get(`auth/me/${userId}`);
+    return response.data?.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
+
+export const updateProfile = async (data: any): Promise<any> => {
+  try {
+    const response = await axiosInstance.put("auth/profile", data);
+    return response.data?.data;
+  } catch (error: any) {
+    throw error;
+  }
+};
