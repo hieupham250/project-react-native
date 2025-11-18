@@ -28,10 +28,11 @@ export default function Login() {
         Alert.alert("Đăng nhập thất bại", msg);
       }
     } catch (error: any) {
-      Alert.alert(
-        "Đăng nhập thất bại",
-        error.response?.data.errors?.[0].message
-      );
+      // Alert.alert(
+      //   "Đăng nhập thất bại",
+      //   error.response?.data.errors?.[0].message
+      // );
+      console.warn(error);
     }
   };
 

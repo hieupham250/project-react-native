@@ -49,6 +49,28 @@ export default function RoomDetail() {
     enabled: !!id,
   });
 
+  useEffect(() => {
+    const loadUserId = async () => {
+      const storedId = await AsyncStorage.getItem("userId");
+      if (storedId) {
+        setUserId(Number(storedId));
+      } else {
+        Alert.alert(
+          "Lỗi",
+          "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại!"
+        );
+        router.replace("/login");
+      }
+    };
+
+    loadUserId();
+  }, []);
+
+  const hasReviewed = React.useMemo(() => {
+    if (!reviews || !userId) return false;
+    return reviews.some((review: any) => review.userId === userId);
+  }, [reviews, userId]);
+
   if (isLoading) {
     return (
       <View style={[styles.container, styles.loadingContainer]}>
@@ -71,28 +93,6 @@ export default function RoomDetail() {
       </View>
     );
   }
-
-  useEffect(() => {
-    const loadUserId = async () => {
-      const storedId = await AsyncStorage.getItem("userId");
-      if (storedId) {
-        setUserId(Number(storedId));
-      } else {
-        Alert.alert(
-          "Lỗi",
-          "Không tìm thấy ID người dùng. Vui lòng đăng nhập lại!"
-        );
-        router.replace("/login");
-      }
-    };
-
-    loadUserId();
-  }, []);
-
-  const hasReviewed = React.useMemo(() => {
-    if (!reviews || !userId) return false;
-    return reviews.some((review: any) => review.userId === userId);
-  }, [reviews, userId]);
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
